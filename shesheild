@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safer · women safety app (offline-first prototype)</title>
+    <!-- Font Awesome 5 for icons (simulates app-like look) -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <!-- Google Font for clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #0b0e14;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        /* mobile frame */
+        .phone-mock {
+            max-width: 380px;
+            width: 100%;
+            background: #f8fafd;
+            border-radius: 44px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 8px #2f3540;
+            overflow: hidden;
+            position: relative;
+            height: 720px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #3a3f4b;
+        }
+
+        /* dynamic status bar */
+        .status-bar {
+            background: #ffffff;
+            padding: 12px 22px 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e1e2f;
+            border-bottom: 1px solid #e9ecf0;
+        }
+
+        .app-header {
+            background: #6c5ce7;
+            padding: 6px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+        .app-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .app-header i {
+            font-size: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 6px;
+            border-radius: 30px;
+        }
+
+        /* main scrollable content */
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 16px 80px; /* bottom space for fake home indicator */
+            scrollbar-width: thin;
+        }
+
+        /* SOS card — prominent */
+        .sos-card {
+            background: linear-gradient(145deg, #ff5e7c, #d43f61);
+            border-radius: 28px;
+            padding: 20px 18px;
+            margin-bottom: 22px;
+            color: white;
+            box-shadow: 0 12px 24px -8px rgba(212,63,97,0.4);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sos-left h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .sos-left p {
+            font-size: 14px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sos-button {
+            background: white;
+            border: none;
+            color: #d43f61;
+            width: 70px;
+            height: 70px;
+            border-radius: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 8px 0 0 #9e2d48, 0 12px 24px rgba(0,0,0,0.2);
+            transition: 0.1s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sos-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 0 #9e2d48, 0 8px 18px rgba(0,0,0,0.1);
+        }
+
+        /* feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .feat-item {
+            background: white;
+            border-radius: 22px;
+            padding: 16px 12px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.02);
+            border: 1px solid #eef2f6;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .feat-item:active { background: #f3f6fc; }
+        .feat-icon {
+            background: #eae6ff;
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4d3dbd;
+            font-size: 22px;
+            margin-bottom: 14px;
+        }
+        .feat-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+        .feat-desc {
+            font-size: 12px;
+            color: #6f7b8a;
+            line-height: 1.3;
+        }
+
+        /* live tracking preview */
+        .tracking-panel {
+            background: #1f2937;
+            border-radius: 26px;
+            padding: 18px;
+            margin-bottom: 20px;
+            color: white;
+            background-image: radial-gradient(circle at 20px 30px, #374151 1px, transparent 1px), 
+                              radial-gradient(circle at 80px 70px, #4b5563 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .track-header span { font-weight: 600; font-size: 16px; }
+        .live-badge {
+            background: #ef4444;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } }
+        .track-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #2b3544;
+            padding: 12px 16px;
+            border-radius: 22px;
+            margin-top: 10px;
+        }
+        .track-row i { font-size: 22px; color: #a5b4fc; }
+        .share-link {
+            background: #3a4456;
+            border-radius: 28px;
+            padding: 12px 16px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0 4px;
+            border: 1px dashed #6d7b91;
+        }
+
+        /* danger zone map placeholder */
+        .danger-preview {
+            background: #212b3b;
+            border-radius: 28px;
+            padding: 18px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .map-dots {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .map-dots span {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #4c1e2d;
+        }
+        .map-dots span.red-zone { background: #b91c1c; box-shadow: 0 0 0 2px rgba(255,70,70,0.4); }
+        .map-dots span.yellow { background: #b45309; }
+        .map-dots span.safe { background: #065f46; }
+
+        .safety-score {
+            display: flex;
+            gap: 12px;
+            background: #00000033;
+            border-radius: 18px;
+            padding: 12px;
+        }
+
+        /* nearby safe stay */
+        .stay-card {
+            background: white;
+            border-radius: 24px;
+            padding: 14px;
+            margin: 18px 0 10px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+            border: 1px solid #e9ecf0;
+        }
+        .stay-avatar {
+            width: 60px;
+            height: 60px;
+            background: #d9c9ff;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3f2e7a;
+            font-size: 28px;
+        }
+        .stay-info h4 { font-size: 16px; }
+        .stay-meta { display: flex; gap: 12px; font-size: 12px; color: #4b5565; margin: 6px 0; }
+
+        /* fake call row */
+        .fake-call-row {
+            background: #f1f4f9;
+            border-radius: 22px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 16px;
+        }
+        .fake-avatar {
+            background: #302b63;
+            width: 52px;
+            height: 52px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+        .set-call-btn {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* bottom navigation (simple) */
+        .bottom-nav {
+            background: #ffffffcc;
+            backdrop-filter: blur(12px);
+            padding: 12px 28px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #dee2e9;
+            font-size: 22px;
+            color: #4b4f69;
+        }
+        .nav-item.active { color: #6c5ce7; }
+
+        /* small alerts & toast simulation */
+        .toast-msg {
+            background: #1e293b;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 60px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px black;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-mock">
+        <!-- top bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span><i class="fas fa-signal"></i>  <i class="fas fa-wifi"></i>  <i class="fas fa-battery-full"></i></span>
+        </div>
+        <div class="app-header">
+            <i class="fas fa-bars"></i>
+            <h2>Safer · offline</h2>
+            <i class="fas fa-user-circle"></i>
+        </div>
+
+        <div class="screen-content" id="screenContent">
+            <!-- one‑tap SOS row (simulated) -->
+            <div class="sos-card">
+                <div class="sos-left">
+                    <h3>⚠️ SOS · one tap</h3>
+                    <p><i class="fas fa-sms"></i> SMS live location + auto-call</p>
+                    <p style="font-size:13px; margin-top:6px;"><i class="fas fa-shield-alt"></i> alert trusted citizens</p>
+                </div>
+                <button class="sos-button" id="sosTrigger">SOS</button>
+            </div>
+
+            <!-- quick toast for SOS feedback (dynamic) -->
+            <div id="liveAlertPlaceholder" style="margin-bottom: 12px;"></div>
+
+            <!-- feature grid (6 features) -->
+            <div class="feature-grid">
+                <!-- 1. live tracking -->
+                <div class="feat-item" id="showLiveTrack">
+                    <div class="feat-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <div class="feat-title">Live tracking</div>
+                    <div class="feat-desc">10‑15 min continuous + shareable link</div>
+                </div>
+                <!-- 2. shake to alert -->
+                <div class="feat-item" id="shakeFeature">
+                    <div class="feat-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="feat-title">Shake alert</div>
+                    <div class="feat-desc">accelerometer trigger SOS</div>
+                </div>
+                <!-- 3. danger zone map -->
+                <div class="feat-item" id="showDangerZone">
+                    <div class="feat-icon"><i class="fas fa-map"></i></div>
+                    <div class="feat-title">Danger zone map</div>
+                    <div class="feat-desc">red zones, safety score</div>
+                </div>
+                <!-- 4. fake call -->
+                <div class="feat-item" id="showFakeCall">
+                    <div class="feat-icon"><i class="fas fa-phone-alt"></i></div>
+                    <div class="feat-title">Fake call</div>
+                    <div class="feat-desc">set caller name & escape</div>
+                </div>
+                <!-- 5. nearby safe stay -->
+                <div class="feat-item" id="showSafeStay">
+                    <div class="feat-icon"><i class="fas fa-bed"></i></div>
+                    <div class="feat-title">Safe stay</div>
+                    <div class="feat-desc">hotels, homes, reviews</div>
+                </div>
+                <!-- 6. trusted citizens -->
+                <div class="feat-item" id="trustedCitizen">
+                    <div class="feat-icon"><i class="fas fa-users"></i></div>
+                    <div class="feat-title">Trusted alerts</div>
+                    <div class="feat-desc">call nearby with login ID</div>
+                </div>
+            </div>
+
+            <!-- live tracking preview (shown by default) -->
+            <div class="tracking-panel" id="liveTrackPanel">
+                <div class="track-header">
+                    <span><i class="fas fa-location-arrow" style="margin-right:6px;"></i>LIVE TRACKING (active)</span>
+                    <span class="live-badge">🔴 LIVE 12:34</span>
+                </div>
+                <div class="track-row">
+                    <i class="fas fa-circle"></i>
+                    <span style="flex:1;">Your location: Banjara Hills, Rd No 12</span>
+                </div>
+                <div class="share-link">
+                    <span><i class="fas fa-link"></i> track.safer.me/x7s9q2</span>
+                    <i class="fas fa-copy" style="color:#a5b4fc;"></i>
+                </div>
+                <p style="font-size:12px; margin-top:10px; color:#9caabc;"><i class="far fa-clock"></i> tracking for 8 min · auto-SMS every 2 min</p>
+            </div>
+
+            <!-- danger zone map preview (initially hidden, toggled) -->
+            <div class="danger-preview" id="dangerZonePanel" style="display: none;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <i class="fas fa-exclamation-triangle" style="color:#f97316;"></i>
+                    <span style="font-weight: 600;">Danger heatmap · community based</span>
+                </div>
+                <div class="map-dots">
+                    <span class="red-zone"></span><span class="red-zone"></span><span class="yellow"></span><span class="safe"></span><span class="red-zone"></span><span class="yellow"></span>
+                </div>
+                <div class="safety-score">
+                    <div><i class="fas fa-shield-alt"></i> safety score: 42 (low)</div>
+                    <div>🚨 3 incidents near you</div>
+                </div>
+                <p style="font-size:12px; margin-top:10px;">⚠️ red zones: Begumpet, Ameerpet · avoid after 9pm</p>
+            </div>
+
+            <!-- fake call UI (shown after click) -->
+            <div id="fakeCallPanel" style="display: none; margin-bottom: 20px;">
+                <div class="fake-call-row">
+                    <div class="fake-avatar"><i class="fas fa-user-tie"></i></div>
+                    <div>
+                        <h4 style="font-weight:700;">Fake incoming call</h4>
+                        <p style="font-size:13px; color:#444; margin:2px 0;">caller: <span id="callerNameDisplay">Mom 👩</span></p>
+                    </div>
+                    <button class="set-call-btn" id="setCallerBtn"><i class="fas fa-pen"></i> set</button>
+                </div>
+                <div style="background:#eef2f8; border-radius: 40px; padding: 14px; text-align:center;">
+                    <i class="fas fa-phone fa-2x" style="color:#2e7d32; background:#c8e6c9; padding:12px; border-radius: 50px;"></i>
+                    <p style="margin-top:8px;">tap to fake call <strong>now</strong> · lock screen appears</p>
+                </div>
+            </div>
+
+            <!-- nearby safe stay card (dynamic toggle) -->
+            <div id="safeStayPanel" style="display: none; margin-bottom: 14px;">
+                <div class="stay-card">
+                    <div class="stay-avatar"><i class="fas fa-home"></i></div>
+                    <div class="stay-info">
+                        <h4>🌿 Tulsi safe stay <span style="background:#00a86b; color:white; padding:2px 8px; border-radius:30px; font-size:11px;">open 24/7</span></h4>
+                        <div class="stay-meta">
+                            <span><i class="fas fa-utensils"></i> food avail</span>
+                            <span><i class="fas fa-bed"></i> 3 rooms</span>
+                        </div>
+                        <p style="font-size:13px;"><i class="fas fa-star" style="color:gold;"></i> 4.8 (trusted by 87 women) · safe transport 🚖</p>
+                    </div>
+                </div>
+                <div class="stay-card">
+                    <div class="stay-avatar"><i class="fas fa-hotel"></i></div>
+                    <div class="stay-info">
+                        <h4>🌸 Anjali residency</h4>
+                        <div class="stay-meta"><span>closes 11pm</span><span>🛒 necessities</span></div>
+                        <p style="font-size:13px;">personalized reviews: "female staff, cctv"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- additional: trusted citizen alert sim -->
+            <div style="background:#e1d9ff; border-radius:20px; padding:16px; margin-top:8px;">
+                <p style="font-weight:600;"><i class="fas fa-bell"></i> trusted citizens near you (4 active)</p>
+                <p style="font-size:13px;">• Anita (5 min) · • Raj (8 min) · • Meera (2 min) <br> <span style="background:#6c5ce7; color:white; padding:4px 12px; border-radius:30px;">call via login ID available</span></p>
+            </div>
+
+            <!-- fake call mini reminder: SMS alert note -->
+            <p style="font-size:12px; color:#6d7b8a; margin-top:16px; border-top:1px solid #ddd; padding-top:12px;"><i class="fas fa-check-circle" style="color:green;"></i> All alerts work offline · SMS, calls, map cached</p>
+        </div> <!-- end screen content -->
+
+        <!-- bottom nav -->
+        <div class="bottom-nav">
+            <i class="fas fa-home nav-item active"></i>
+            <i class="fas fa-map-marked-alt nav-item"></i>
+            <i class="fas fa-bell nav-item"></i>
+            <i class="fas fa-user nav-item"></i>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // UI elements
+            const sosBtn = document.getElementById('sosTrigger');
+            const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+            const liveTrackPanel = document.getElementById('liveTrackPanel');
+            const dangerZonePanel = document.getElementById('dangerZonePanel');
+            const fakeCallPanel = document.getElementById('fakeCallPanel');
+            const safeStayPanel = document.getElementById('safeStayPanel');
+            const callerNameSpan = document.getElementById('callerNameDisplay');
+
+            // feature click items
+            document.getElementById('showLiveTrack').addEventListener('click', () => {
+                hideAllPanels();
+                liveTrackPanel.style.display = 'block';
+                showToast('📍 Live tracking started (offline mode) · link shareable');
+            });
+            document.getElementById('showDangerZone').addEventListener('click', () => {
+                hideAllPanels();
+                dangerZonePanel.style.display = 'block';
+                showToast('⚠️ Danger zone map loaded · red zones indicated');
+            });
+            document.getElementById('showFakeCall').addEventListener('click', () => {
+                hideAllPanels();
+                fakeCallPanel.style.display = 'block';
+                showToast('📞 Fake call ready · set caller name');
+            });
+            document.getElementById('showSafeStay').addEventListener('click', () => {
+                hideAllPanels();
+                safeStayPanel.style.display = 'block';
+                showToast('🏨 Nearby safe stay · trusted residences');
+            });
+            document.getElementById('shakeFeature').addEventListener('click', () => {
+                showToast('📳 Shake detected! triggering SOS (simulated)');
+                triggerSosMessage('Shake alert');
+            });
+            document.getElementById('trustedCitizen').addEventListener('click', () => {
+                showToast('👥 Alerting trusted citizens via call + login ID');
+            });
+
+            // set fake caller name
+            document.getElementById('setCallerBtn').addEventListener('click', () => {
+                let newName = prompt('Enter fake caller name (e.g., Dad, Sister):', 'Mom 👩');
+                if (newName !== null && newName.trim() !== '') {
+                    callerNameSpan.innerText = newName;
+                    showToast(`Caller set to "${newName}" · tap fake call now`);
+                }
+            });
+
+            // one tap SOS
+            sosBtn.addEventListener('click', () => {
+                triggerSosMessage('One‑tap SOS');
+            });
+
+            function triggerSosMessage(source) {
+                // simulate sending SMS + call + trusted citizen alert
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'toast-msg';
+                alertDiv.innerHTML = `<i class="fas fa-exclamation-circle" style="color:#ff8a8a;"></i> 
+                                        <span><strong>${source} activated</strong> · SMS sent to 3 emergency contacts · auto‑call started · 2 trusted citizens alerted via call (login ID).</span>
+                                        <i class="fas fa-times" style="margin-left:auto;" onclick="this.parentElement.remove()"></i>`;
+                alertPlaceholder.appendChild(alertDiv);
+                // auto remove after 5 sec
+                setTimeout(() => { if(alertDiv.parentNode) alertDiv.remove(); }, 6000);
+
+                // also vibrate if supported (prototype)
+                if (navigator.vibrate) navigator.vibrate(400);
+            }
+
+            // helper hide panels
+            function hideAllPanels() {
+                liveTrackPanel.style.display = 'none';
+                dangerZonePanel.style.display = 'none';
+                fakeCallPanel.style.display = 'none';
+                safeStayPanel.style.display = 'none';
+            }
+
+            // generic toast
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'toast-msg';
+                toast.style.background = '#2d3c5e';
+                toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${msg}</span> <i class="fas fa-times" style="margin-left:auto;" onclick="this.parentElement.remove()"></i>`;
+                alertPlaceholder.appendChild(toast);
+                setTimeout(() => { if(toast.parentNode) toast.remove(); }, 4000);
+            }
+
+            // extra: simulate shake (for demo purpose, just toast)
+            // but we already handle via click. good.
+
+            // initially show only live track + hide others? default shown, but we hide danger,fake,safe
+            window.onload = function() {
+                // start with live visible, others hidden
+                liveTrackPanel.style.display = 'block';
+                dangerZonePanel.style.display = 'none';
+                fakeCallPanel.style.display = 'none';
+                safeStayPanel.style.display = 'none';
+            };
+        })();
+    </script>
+
+    <!-- small note for fakecall click outside setter (enable tap on fake call to simulate) -->
+    <script>
+        // additional demo: simulate fake call answer when clicking the green phone area
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-phone.fa-2x')) {
+                alert('📲 FAKE CALL SCREEN · Incoming from ' + (document.getElementById('callerNameDisplay').innerText) + ' (swipe to answer — escape)');
+            }
+        });
+        // simulate map tap on danger zone
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.red-zone')) {
+                alert('🚨 Red zone: past incident reports. Safety score low. Consider alternative route.');
+            }
+        });
+        // share link copy simulation
+        document.querySelector('.share-link i.fa-copy')?.addEventListener('click', function() {
+            alert('📎 Tracking link copied (offline share)');
+        });
+    </script>
+</body>
+</html>
